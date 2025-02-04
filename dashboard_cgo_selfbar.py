@@ -6,27 +6,34 @@ import matplotlib.pyplot as plt
 try:
     df = pd.read_excel("KPI_CGO_SelfBar.xlsx")
     st.write("Fichier chargé avec succès !")
-    st.write(df.dtypes)  # Vérifie les types des colonnes
-    st.write(df.head())  # Affiche les premières lignes pour diagnostic
+    st.write("Colonnes disponibles :", df.columns)
+
+    # Corrige les noms de colonnes (supprime les espaces indésirables)
+    df.columns = df.columns.str.strip()
+
+    # Vérifie la présence des colonnes nécessaires
+    required_columns = ["KPI", "Réalisation", "Objectif"]
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        st.error(f"Colonnes manquantes : {', '.join(missing_columns)}")
+    else:
+        # Corrige les types des colonnes
+        df["Objectif"] = pd.to_numeric(df["Objectif"], errors="coerce")
+        df["Réalisation"] = pd.to_numeric(df["Réalisation"], errors="coerce")
+        df["KPI"] = df["KPI"].astype(str)
+
+        # Gère les valeurs NaN
+        df = df.dropna(subset=["Objectif", "Réalisation"])
+
+        # Génère le graphique
+        fig, ax = plt.subplots()
+        ax.barh(df["KPI"], df["Objectif"], color="lightgray", label="Objectif")
+        ax.barh(df["KPI"], df["Réalisation"], color="blue", label="Réalisation")
+        ax.set_xlabel("Valeurs")
+        ax.set_ylabel("KPI")
+        ax.legend()
+        st.pyplot(fig)
 except FileNotFoundError:
-    st.error("Le fichier Excel 'KPI_CGO_SelfBar.xlsx' est introuvable. Assure-toi qu'il est bien dans le même dossier que ce script.")
+    st.error("Le fichier Excel 'KPI_CGO_SelfBar.xlsx' est introuvable.")
 except Exception as e:
-    st.error(f"Erreur inattendue lors du chargement : {e}")
-
-# Tracer le graphique uniquement si df est chargé
-if 'df' in locals():
-    # Vérifier et corriger les colonnes nécessaires
-    df["Objectif"] = pd.to_numeric(df["Objectif"], errors="coerce")
-    df["KPI"] = df["KPI"].astype(str)
-    df = df.dropna(subset=["Objectif"])
-
-    # Création du graphique
-    fig, ax = plt.subplots()
-    ax.barh(df["KPI"], df["Objectif"], color="lightgray", label="Objectif")
-    ax.barh(df["KPI"], df["Réalisation"], color="blue", label="Résultat Actuel")
-    ax.set_xlabel("Valeurs")
-    ax.set_ylabel("KPI")
-    ax.legend()
-    st.pyplot(fig)
-else:
-    st.warning("Impossible de générer le graphique, le DataFrame est vide.")
+    st.error(f"Erreur inattendue : {e}")
