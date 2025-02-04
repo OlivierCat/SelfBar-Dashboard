@@ -3,6 +3,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Inspecter les types et le contenu des colonnes
+st.write(df.dtypes)
+st.write(df)
+
+# Corriger les types des colonnes
+df["Objectif"] = pd.to_numeric(df["Objectif"], errors="coerce")
+df["KPI"] = df["KPI"].astype(str)
+
+# Gérer les valeurs NaN
+df = df.dropna(subset=["Objectif"])
+
+# Tracer le graphique
+fig, ax = plt.subplots()
+ax.barh(df["KPI"], df["Objectif"], color="lightgray", label="Objectif")
+ax.barh(df["KPI"], df["Réalisation"], color="blue", label="Réalisation")
+ax.set_xlabel("Valeurs")
+ax.set_ylabel("KPI")
+ax.legend()
+st.pyplot(fig)
+
 # Charger les données
 file_path = "KPI_CGO_SelfBar.xlsx"  # Remplacer par le chemin réel du fichier
 df = pd.read_excel(file_path)
