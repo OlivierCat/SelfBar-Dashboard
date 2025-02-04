@@ -23,7 +23,7 @@ if 'df' in locals():
     # Création du graphique
     fig, ax = plt.subplots()
     ax.barh(df["KPI"], df["Objectif"], color="lightgray", label="Objectif")
-    ax.barh(df["KPI"], df["Réalisation"], color="blue", label="Réalisation")
+    ax.barh(df["KPI"], df["Réalisation"], color="blue", label="Résultat Actuel")
     ax.set_xlabel("Valeurs")
     ax.set_ylabel("KPI")
     ax.legend()
